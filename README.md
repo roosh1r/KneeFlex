@@ -16,6 +16,8 @@
 
 - Once the "Sent Data" message appears on the screen, run the following command
 
+- **Ensure that MongoDB is installed on your machine**. It is required to use the command below. [Link](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/)
+
 - `mongoexport -h ds053130.mongolab.com:53130 -d sensordata -c test -u admin -p password -o test.json`
 
 - Run `script.py` and specify the filename of the downloaded `json` file.
