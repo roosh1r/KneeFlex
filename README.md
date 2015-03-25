@@ -4,7 +4,9 @@
 
 1. Clone the repository on your local machine
 
-2. Open the Evothings App
+2. Copy 'knee-flex' into the examples directory of the EvoThings Workbench
+
+2a. Drag and drop `index.html` from the folder onto the main window of EvoThings Workbench
 
 3. Connect your phone as a client
 
