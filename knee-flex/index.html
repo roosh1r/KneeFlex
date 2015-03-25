@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<!--
+	Demonstration of the TI SensorTag JavaScript library.
+-->
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, user-scalable=no
+		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+
+	<title>Knee Flex</title>
+
+	<style>
+		@import 'ui/css/evothings-app.css';
+	</style>
+
+	<script>
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	</script>
+
+	<script src="cordova.js"></script>
+	<script src="cordova_plugins.js"></script>
+	<script src="datastoratge.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/jquery-1.11.2.min.js"></script>
+	<script src="libs/evothings/tisensortag/tisensortag.js"></script>
+	<script src="libs/evothings/tisensortag/tisensortag2.js"></script>
+</head>
+
+<body>
+
+	<header>
+		<button class="back" onclick="history.back()">
+			<img src="ui/images/arrow-left.svg" />
+		</button>
+		<img class="logotype" src="ui/images/logo.png" alt="Evothings" /> <span class="logotext">Knee Flex<span>
+		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
+	</header>
+	<div class="container">
+		<div class="leftcol">
+
+			<h1>Leg</h1><button onclick="loadA()">Connect</button>
+
+			<p>
+				Current firmware: <span id="FirmwareData">?</span>
+			</p>
+
+			<p>
+				<strong>Status:</strong> <span id="StatusData">Ready to connect</span>
+			</p>
+			
+			<h2>Accelerometer:</h2>
+			<p>
+				<!--<span id="AccelerometerData">[Waiting for value]</span>-->
+				x = <span id="acl_x1"></span> g<br />
+				y = <span id="acl_y1"></span> g<br />
+				z = <span id="acl_z1"></span> g<br />
+			</p>
+
+			<!--<h2>Magnetometer:</h2>
+			<p>
+				<span id="MagnetometerData">[Waiting for value]</span>
+			</p>-->
+			
+			<h2>Gyroscope:</h2>
+			<p>
+				<!--<span id="GyroscopeData">[Waiting for value]</span>-->
+				x = <span id="gyr_x1"></span> deg/s<br />
+				y = <span id="gyr_y1"></span> deg/s<br />
+				z = <span id="gyr_z1"></span> deg/s<br />
+			</p>
+		</div>
+<!-- ***************************************************************************************** -->
+		<div class="rightcol">
+			<h1>Thigh</h1><button onclick="loadB()">Connect</button>
+
+			<p>
+				Current firmware: <span id="FirmwareData2">?</span>
+			</p>
+
+			<p>
+				<strong>Status:</strong> <span id="StatusData2">Ready to connect</span>
+			</p>
+			
+			<h2>Accelerometer:</h2>
+			<p>
+				<!--<span id="AccelerometerData2">[Waiting for value]</span>-->
+				x = <span id="acl_x2"></span> g<br />
+				y = <span id="acl_y2"></span> g<br />
+				z = <span id="acl_z2"></span> g<br />
+			</p>
+
+			<!--<h2>Magnetometer:</h2>
+			<p>
+				<span id="MagnetometerData2">[Waiting for value]</span>
+			</p>-->
+			
+			<h2>Gyroscope:</h2>
+			<p>
+				<!--<span id="GyroscopeData2">[Waiting for value]</span>-->
+				x = <span id="gyr_x2"></span> deg/s<br />
+				y = <span id="gyr_y2"></span> deg/s<br />
+				z = <span id="gyr_z2"></span> deg/s<br />
+			</p>
+		</div>
+	</div>
+
+	<div class="container">
+		<button onclick="temp()">Record</button>
+		<p id="logger"></p>
+		<div><textarea id="jsondata"></textarea></div>
+	</div>
+
+	<script>
+
+	function loadA() 
+	{ 
+		evothings.scriptsLoaded(initialiseSensorTag1) 
+	}
+	function loadB() 
+	{ 
+		evothings.scriptsLoaded(initialiseSensorTag2) 
+	}
+
+	// SensorTag object.
+	var sensortag = evothings.tisensortag.createInstance()
+	var sensortag2 = evothings.tisensortag2.createInstance()
+
+
+	function initialiseSensorTag1()
+	{
+		//
+		// Here sensors are set up.
+		//
+		// If you wish to use only one or a few sensors, just set up
+		// the ones you wish to use.
+		//
+		// First parameter to sensor function is the callback function.
+		// Several of the sensors take a millisecond update interval
+		// as the second parameter.
+		// Gyroscope takes the axes to enable as the third parameter:
+		// 1 to enable X axis only, 2 to enable Y axis only, 3 = X and Y,
+		// 4 = Z only, 5 = X and Z, 6 = Y and Z, 7 = X, Y and Z.
+		//
+		sensortag
+			.statusCallback(statusHandler)
+			.errorCallback(errorHandler)
+			.keypressCallback(keypressHandler)
+			.accelerometerCallback(accelerometerHandler, 100)
+			.magnetometerCallback(magnetometerHandler, 100)
+			.gyroscopeCallback(gyroscopeHandler, 100, 7) // 7 = enable all axes.
+			.connectToClosestDevice()
+	}
+
+	function initialiseSensorTag2()
+	{
+		//
+		// Here sensors are set up.
+		//
+		// If you wish to use only one or a few sensors, just set up
+		// the ones you wish to use.
+		//
+		// First parameter to sensor function is the callback function.
+		// Several of the sensors take a millisecond update interval
+		// as the second parameter.
+		// Gyroscope takes the axes to enable as the third parameter:
+		// 1 to enable X axis only, 2 to enable Y axis only, 3 = X and Y,
+		// 4 = Z only, 5 = X and Z, 6 = Y and Z, 7 = X, Y and Z.
+		//
+		sensortag2
+			.statusCallback(statusHandler2)
+			.errorCallback(errorHandler2)
+			.keypressCallback(keypressHandler2)
+			.accelerometerCallback(accelerometerHandler2, 100)
+			.magnetometerCallback(magnetometerHandler2, 100)
+			.gyroscopeCallback(gyroscopeHandler2, 100, 7) // 7 = enable all axes.
+			.connectToClosestDevice()
+	}
+
+	function statusHandler(status)
+	{
+		if ('Device data available' == status)
+		{
+			displayValue('FirmwareData', sensortag.getFirmwareString())
+		}
+		displayValue('StatusData', status)
+	}
+
+	function statusHandler2(status)
+	{
+		if ('Device data available' == status)
+		{
+			displayValue('FirmwareData2', sensortag2.getFirmwareString())
+		}
+		displayValue('StatusData2', status)
+	}
+
+	function errorHandler(error)
+	{
+		console.log('Error: ' + error)
+		if ('disconnected' == error)
+		{
+			// Clear current values.
+			var blank = '[Waiting for value]'
+			displayValue('StatusData', 'Ready to connect')
+			displayValue('FirmwareData', '?')
+			displayValue('KeypressData', blank)
+			displayValue('IRTemperatureData', blank)
+			displayValue('AccelerometerData', blank)
+			displayValue('HumidityData', blank)
+			displayValue('MagnetometerData', blank)
+			displayValue('BarometerData', blank)
+			displayValue('GyroscopeData', blank)
+
+			// Reset screen color.
+			setBackgroundColor('white')
+
+			// If disconneted attempt to connect again.
+			setTimeout(
+				function() { sensortag.connectToClosestDevice() },
+				1000)
+		}
+	}
+
+	function errorHandler2(error)
+	{
+		console.log('Error: ' + error)
+		if ('disconnected' == error)
+		{
+			// Clear current values.
+			var blank = '[Waiting for value]'
+			displayValue('StatusData2', 'Ready to connect')
+			displayValue('FirmwareData2', '?')
+			displayValue('KeypressData2', blank)
+			displayValue('IRTemperatureData2', blank)
+			displayValue('AccelerometerData2', blank)
+			displayValue('HumidityData2', blank)
+			displayValue('MagnetometerData2', blank)
+			displayValue('BarometerData2', blank)
+			displayValue('GyroscopeData2', blank)
+
+			// Reset screen color.
+			setBackgroundColor('white')
+
+			// If disconneted attempt to connect again.
+			setTimeout(
+				function() { sensortag2.connectToClosestDevice() },
+				1000)
+		}
+	}
+
+	// calculations implemented as based on TI wiki pages
+	// http://processors.wiki.ti.com/index.php/SensorTag_User_Guide
+
+	function keypressHandler(data)
+	{
+		// Update background color.
+		switch (data[0])
+		{
+			case 0:
+				setBackgroundColor('white')
+				break;
+			case 1:
+				setBackgroundColor('red')
+				break;
+			case 2:
+				setBackgroundColor('blue')
+				break;
+			case 3:
+				setBackgroundColor('magenta')
+				break;
+		}
+
+		// Update the value displayed.
+		var string = 'raw: 0x' + bufferToHexStr(data, 0, 1)
+		displayValue('KeypressData', string)
+	}
+
+	function keypressHandler2(data)
+	{
+		// Update background color.
+		switch (data[0])
+		{
+			case 0:
+				setBackgroundColor('white')
+				break;
+			case 1:
+				setBackgroundColor('pink')
+				break;
+			case 2:
+				setBackgroundColor('yellow')
+				break;
+			case 3:
+				setBackgroundColor('cyan')
+				break;
+		}
+
+		// Update the value displayed.
+		var string = 'raw: 0x' + bufferToHexStr(data, 0, 1)
+		displayValue('KeypressData2', string)
+	}
+
+	function accelerometerHandler(data)
+	{
+		// Calculate the x,y,z accelerometer values from raw data.
+		var values = sensortag.getAccelerometerValues(data)
+		var x = values.x
+		var y = values.y
+		var z = values.z
+
+		// Prepare the information to display.
+		//string =
+			//'raw: 0x' + bufferToHexStr(data, 0, 3) + '<br/>'
+			//'x = ' + (x >= 0 ? '+' : '') + x.toFixed(5) + 'G<br/>'
+			//+ 'y = ' + (y >= 0 ? '+' : '') + y.toFixed(5) + 'G<br/>'
+			//+ 'z = ' + (z >= 0 ? '+' : '') + z.toFixed(5) + 'G<br/>'
+
+		// Update the value displayed.
+		//displayValue('AccelerometerData', string)
+		displayValue('acl_x1', x.toFixed(3))
+		displayValue('acl_y1', y.toFixed(3))
+		displayValue('acl_z1', z.toFixed(3))
+	}
+	function accelerometerHandler2(data)
+	{
+		// Calculate the x,y,z accelerometer values from raw data.
+		var values = sensortag2.getAccelerometerValues(data)
+		var x = values.x
+		var y = values.y
+		var z = values.z
+
+		// Prepare the information to display.
+		//string =
+			//'raw: 0x' + bufferToHexStr(data, 0, 3) + '<br/>'
+			//'x = ' + (x >= 0 ? '' : '-') + x.toFixed(5) + 'G<br/>'
+			//+ 'y = ' + (y >= 0 ? '' : '-') + y.toFixed(5) + 'G<br/>'
+			//+ 'z = ' + (z >= 0 ? '' : '-') + z.toFixed(5) + 'G<br/>'
+
+		// Update the value displayed.
+		//displayValue('AccelerometerData2', string)
+		displayValue('acl_x2', x.toFixed(3))
+		displayValue('acl_y2', y.toFixed(3))
+		displayValue('acl_z2', z.toFixed(3))
+	}
+
+	function magnetometerHandler(data)
+	{
+		// Calculate the magnetometer values from raw sensor data.
+		var values = sensortag.getMagnetometerValues(data)
+		var x = values.x
+		var y = values.y
+		var z = values.z
+
+		// Prepare the information to display.
+		string =
+			//'raw: 0x' + bufferToHexStr(data, 0, 6) + '<br/>'
+			'x = ' + (x >= 0 ? '+' : '') + x.toFixed(5) + '&micro;T <br/>'
+			+ 'y = ' + (y >= 0 ? '+' : '') + y.toFixed(5) + '&micro;T <br/>'
+			+ 'z = ' + (z >= 0 ? '+' : '') + z.toFixed(5) + '&micro;T <br/>'
+
+		// Update the value displayed.
+		displayValue('MagnetometerData', string)
+	}
+
+	function magnetometerHandler2(data)
+	{
+		// Calculate the magnetometer values from raw sensor data.
+		var values = sensortag2.getMagnetometerValues(data)
+		var x = values.x
+		var y = values.y
+		var z = values.z
+
+		// Prepare the information to display.
+		string =
+			//'raw: 0x' + bufferToHexStr(data, 0, 6) + '<br/>'
+			'x = ' + (x >= 0 ? '+' : '') + x.toFixed(5) + '&micro;T <br/>'
+			+ 'y = ' + (y >= 0 ? '+' : '') + y.toFixed(5) + '&micro;T <br/>'
+			+ 'z = ' + (z >= 0 ? '+' : '') + z.toFixed(5) + '&micro;T <br/>'
+
+		// Update the value displayed.
+		displayValue('MagnetometerData2', string)
+	}
+
+	function gyroscopeHandler(data)
+	{
+		// Calculate the gyroscope values from raw sensor data.
+		var values = sensortag.getGyroscopeValues(data)
+		var x = values.x
+		var y = values.y
+		var z = values.z
+
+		displayValue('gyr_x1', x.toFixed(3))
+		displayValue('gyr_y1', y.toFixed(3))
+		displayValue('gyr_z1', z.toFixed(3))
+	}
+
+	function gyroscopeHandler2(data)
+	{
+		// Calculate the gyroscope values from raw sensor data.
+		var values = sensortag2.getGyroscopeValues(data)
+		var x = values.x
+		var y = values.y
+		var z = values.z
+
+		displayValue('gyr_x2', x.toFixed(3))
+		displayValue('gyr_y2', y.toFixed(3))
+		displayValue('gyr_z2', z.toFixed(3))
+	}
+
+	function displayValue(elementId, value)
+	{
+		document.getElementById(elementId).innerHTML = value
+	}
+
+	function setBackgroundColor(color)
+	{
+		document.documentElement.style.background = color
+		document.body.style.background = color
+	}
+
+	/**
+	 * Convert byte buffer to hex string.
+	 * @param buffer - an Uint8Array
+	 * @param offset - byte offset
+	 * @param numBytes - number of bytes to read
+	 * @return string with hex representation of bytes
+	 */
+	function bufferToHexStr(buffer, offset, numBytes)
+	{
+		var hex = ''
+		for (var i = 0; i < numBytes; ++i)
+		{
+			hex += byteToHexStr(buffer[offset + i])
+		}
+		return hex
+	}
+
+	/**
+	 * Convert byte number to hex string.
+	 */
+	function byteToHexStr(d)
+	{
+		if (d < 0) { d = 0xFF + d + 1 }
+		var hex = Number(d).toString(16)
+		var padding = 2
+		while (hex.length < padding)
+		{
+			hex = '0' + hex
+		}
+		return hex
+	}
+	function temp()
+	{
+		var _TIME_ = 0.00;
+		//clear document
+		$.ajax({
+				url: "https://api.mongolab.com/api/1/databases/sensordata/collections/test?apiKey=JpMc3lsn67z8slI9vBDooUAeq-7EeQrn",
+				type: "PUT",
+				data: JSON.stringify( {} ),
+				contentType: "application/json"
+			}).done(function( msg ) {
+				console.log(msg);
+			});
+
+		var data = '{'+
+						'"time_":[],' +
+						'"leg_x":[], "leg_y":[], "leg_z":[],'+
+						'"thigh_x":[], "thigh_y":[], "thigh_z":[],'+
+						'"gyro_z":[]'+
+					'}';
+
+		obj = JSON.parse(data);	
+		var run_fun = setInterval(function(){
+				obj["time_"].push(_TIME_);
+				obj["leg_x"].push(document.getElementById("acl_x1").innerHTML);
+				obj["leg_y"].push(document.getElementById("acl_y1").innerHTML);
+				obj["leg_z"].push(document.getElementById("acl_z1").innerHTML);
+				obj["thigh_x"].push(document.getElementById("acl_x2").innerHTML);
+				obj["thigh_y"].push(document.getElementById("acl_y2").innerHTML);
+				obj["thigh_z"].push(document.getElementById("acl_z2").innerHTML);
+				obj["gyro_z"].push(document.getElementById("gyr_z2").innerHTML);
+				document.getElementById("logger").innerHTML = "writing data to JSON";
+				index = index + 1;
+				_TIME_ = _TIME_ + (1/10);
+		}, 100);
+		setTimeout(function(){
+			clearInterval(run_fun);
+			var jsonObj = JSON.stringify(obj);
+			document.getElementById("jsondata").innerHTML = jsonObj;
+			document.getElementById("logger").innerHTML = "Sent Data";
+			stuff.run(jsonObj);
+		}, 90000)
+	}
+
+	var stuff = {
+		run: function (jsonObj) {
+			stuff.send(jsonObj);
+		},
+		error: function (msg) {
+			console.log(msg);
+		},
+		send: function (jsonObj) {
+			var obj = JSON.parse(jsonObj);
+			$.ajax({
+				url: "https://api.mongolab.com/api/1/databases/sensordata/collections/test?apiKey=JpMc3lsn67z8slI9vBDooUAeq-7EeQrn",
+				type: "PUT",
+				data: JSON.stringify( { "$push": { 
+													"time_x": {"$each": obj.time_},
+													"leg_x": {"$each": obj.leg_x},
+													"leg_y": {"$each": obj.leg_y},
+													"leg_z": {"$each": obj.leg_z},
+													"thigh_x": {"$each": obj.thigh_x},
+													"thigh_y": {"$each": obj.thigh_y},
+													"thigh_z": {"$each": obj.thigh_z},
+													"gyro_z": {"$each": obj.gyro_z}
+												} } ),
+				contentType: "application/json"
+			}).done(function( msg ) {
+				console.log(msg);
+			});
+		}
+	};
+
+	</script>
+
+</body>
+
+</html>
