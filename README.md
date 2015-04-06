@@ -4,17 +4,23 @@
 
 - Clone the repository on your local machine
 
-- Copy 'knee-flex' into the examples directory of the EvoThings Workbench
+- If you do not have EvoThings workbench, please download it [here](http://evothings.com/download/)
+
+- Copy 'knee-flex' into the 'examples' folder of the EvoThings Workbench directory
 
 - Drag and drop `index.html` from the folder onto the main window of EvoThings Workbench
+
+- Download Evothings Application on your smartphone
+
+- Run EvoThings Workbench
 
 - Connect your phone as a client
 
 - Run Knee Flex
 
-- Knee Flex Run time can be altered by changing the value in Line 496 of `index.html` (Time in ms)
+- Knee Flex data collection period can be altered by changing the value in Line 496 of `index.html` (Time in ms)
 
-- Once the "Sent Data" message appears on the screen, run the following command
+- Once the "Sent Data" message appears on the screen, run the following command in your Terminal.
 
 - **Ensure that MongoDB is installed on your machine**. It is required to use the command below. [Link](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/)
 
